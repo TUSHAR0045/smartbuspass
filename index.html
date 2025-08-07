@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>One Day Bus Pass</title>
+    <style>
+      body {
+        margin: 0;
+        background: #d7e9ff;
+        font-family: sans-serif;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+      }
+      .ticket {
+        width: 380px;
+        background: #fff;
+        border-radius: 20px;
+        text-align: center;
+        position: relative;
+        overflow: hidden;
+      }
+      .header {
+        background-color: #d33;
+        color: #fff;
+        font-weight: bold;
+        font-size: 18px;
+        padding: 12px;
+      }
+      .section {
+        padding: 16px 20px;
+      }
+      .section .row {
+        display: flex;
+        justify-content: space-between;
+        font-size: 14px;
+        margin: 4px 0;
+      }
+      .bold {
+        font-weight: bold;
+      }
+      .divider {
+        border-top: 1px dashed #999;
+        margin: 0 20px;
+      }
+      .one-day {
+        background-color: #d33;
+        color: white;
+        font-weight: bold;
+        padding: 8px 0;
+        font-size: 16px;
+      }
+      .logo {
+  margin: 16px 0;
+  width: 60%;
+  animation: zoomPulse 2.1s ease-in-out infinite;
+}
+
+@keyframes zoomPulse {
+  0%   { transform: scale(0.25); }
+  50%  { transform: scale(1); }
+  100% { transform: scale(0.25); }
+}
+
+      .expire {
+        background: #f9f9f9;
+        padding: 12px 0;
+        font-size: 14px;
+      }
+      .divider {
+        border-top: 1px dashed #999;
+        margin: 20px auto;
+        width: 93%;
+      }
+      .ticket::before,
+      .ticket::after {
+        content: "";
+        position: absolute;
+        width: 20px;
+        height: 40px;
+        background: #d7e9ff;
+        border-radius: 50%;
+        top: 120px;
+        z-index: 1;
+      }
+      .ticket::before {
+        left: -10px;
+      }
+      .ticket::after {
+        right: -10px;
+      }
+      .allpass{
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        text-decoration: underline;
+      }
+      .cross{
+        position: absolute;
+        top: 10px;
+        left: 10px;
+        font-size: 20px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="allpass">
+      All passes  
+    </div>
+    <dic class="cross">
+      x
+    </dic>
+    <div class="ticket">
+      <div class="header">Rajkot Rajpath Ltd</div>
+      <div class="section">
+        <div class="row">
+          <div class="bold">ID</div>
+          <div class="bold">Fare</div>
+        </div>
+        <div class="row">
+          <div class="bold" id="userName" style="font-size: 16px"></div>
+          <div class="bold" style="font-size: 16px">₹25</div>
+        </div>
+      </div>
+      <div class="divider"></div>
+      <div class="section">
+        <div class="row">
+          <div class="bold">Booking Time</div>
+          <div class="bold">Validity Time</div>
+        </div>
+        <div class="row">
+          <div id="bookingTime">07 Aug, 25 | 07:01 AM</div>
+          <div id="validityTime">07 Aug, 25 | 11:59 PM</div>
+        </div>
+      </div>
+      <div class="section">
+        <div style="font-size: 14px" id="ticketCode"></div>
+      </div>
+      <div class="one-day">One Day Pass</div>
+      <div class="section">
+        <img class="logo" src="./generated-image.png" alt="RRL Saarthi Logo" />
+      </div>
+      <div class="expire">Expires in <span id="countdown">00:00:00</span></div>
+    </div>
+
+    <script>
+      // Ask for user's name
+      const name = prompt("Apna naam daaliye:");
+      document.getElementById("userName").textContent = name
+        ? name.toUpperCase()
+        : "UNKNOWN";
+
+      // Helper to format date
+      const formatDate = (date) => {
+        const options = {
+          day: "2-digit",
+          month: "short",
+          year: "2-digit",
+          hour: "2-digit",
+          minute: "2-digit",
+          hour12: true,
+        };
+        return date.toLocaleString("en-IN", options).replace(",", "");
+      };
+
+      // Check if booking time already exists for today
+      const todayKey = new Date().toISOString().slice(0, 10); // e.g., "2025-08-07"
+      let bookingDate, validityDate;
+
+      if (localStorage.getItem("booking_" + todayKey)) {
+  bookingDate = new Date(localStorage.getItem("booking_" + todayKey));
+  validityDate = new Date(localStorage.getItem("validity_" + todayKey));
+} else {
+  bookingDate = new Date(); // exact current time
+  validityDate = new Date();
+  validityDate.setHours(23, 59, 59, 0); // end of day
+
+  localStorage.setItem("booking_" + todayKey, bookingDate.toISOString());
+  localStorage.setItem("validity_" + todayKey, validityDate.toISOString());
+}
+      document.getElementById("bookingTime").textContent =
+        formatDate(bookingDate);
+      document.getElementById("validityTime").textContent =
+        formatDate(validityDate);
+
+      // Countdown timer
+      function updateCountdown() {
+        const now = new Date();
+        const diff = validityDate - now;
+        if (diff <= 0) {
+          document.getElementById("countdown").textContent = "Expired";
+          clearInterval(timer);
+          return;
+        }
+        const hrs = Math.floor(diff / (1000 * 60 * 60));
+        const mins = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+        const secs = Math.floor((diff % (1000 * 60)) / 1000);
+        document.getElementById("countdown").textContent = `${hrs
+          .toString()
+          .padStart(2, "0")}:${mins.toString().padStart(2, "0")}:${secs
+          .toString()
+          .padStart(2, "0")}`;
+      }
+      const timer = setInterval(updateCountdown, 1000);
+      updateCountdown();
+
+      // Generate random ticket code
+      function generateTicketCode() {
+        const date = new Date();
+        const dd = String(date.getDate()).padStart(2, "0");
+        const mm = String(date.getMonth() + 1).padStart(2, "0");
+        const yy = String(date.getFullYear()).slice(-2);
+        const hh = String(date.getHours()).padStart(2, "0");
+        const min = String(date.getMinutes()).padStart(2, "0");
+        const randomPart = Math.random()
+          .toString(36)
+          .substring(2, 8)
+          .toUpperCase();
+        return `${dd}${mm}${yy}${hh}${min}${randomPart}`;
+      }
+
+      document.getElementById("ticketCode").textContent = generateTicketCode();
+    </script>
+  </body>
+</html>
