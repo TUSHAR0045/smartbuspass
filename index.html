@@ -16,6 +16,7 @@
       }
       .ticket {
         width: 380px;
+        height: 570px; /* Reduced height */
         background: #fff;
         border-radius: 20px;
         text-align: center;
@@ -53,25 +54,34 @@
         font-size: 16px;
       }
       .logo {
-  margin: 16px 0;
-  width: 60%;
-  animation: zoomPulse 2.1s ease-in-out infinite;
-}
+        margin: 0px 0 0 0; /* Reduced top margin to move it up */
+        width: 50%;
+        animation: zoomPulse 2.2s ease-in-out infinite;
+      }
 
-@keyframes zoomPulse {
-  0%   { transform: scale(0.25); }
-  50%  { transform: scale(1); }
-  100% { transform: scale(0.25); }
-}
+      @keyframes zoomPulse {
+        0% {
+          transform: scale(0.5);
+        }
+        50% {
+          transform: scale(1);
+        }
+        100% {
+          transform: scale(0.5);
+        }
+      }
 
       .expire {
+        position: absolute;
+        bottom: 0px; /* Adjust this value to move it up or down */
+        width: 100%;
         background: #f9f9f9;
         padding: 12px 0;
         font-size: 14px;
       }
       .divider {
         border-top: 1px dashed #999;
-        margin: 20px auto;
+        margin: 35px auto; /* Increased from 20px to 30px */
         width: 93%;
       }
       .ticket::before,
@@ -91,44 +101,57 @@
       .ticket::after {
         right: -10px;
       }
-      .allpass{
+      .allpass {
         position: absolute;
         top: 10px;
         right: 10px;
         text-decoration: underline;
       }
-      .cross{
+      .cross {
         position: absolute;
         top: 10px;
         left: 10px;
         font-size: 20px;
       }
+      .fare {
+        position: absolute;
+        left: 250px;
+        font-size: 15px;
+      }
+      .validity {
+        position: absolute;
+        left: 235px;
+      }
+      .name {
+        position: absolute;
+        top: 90px;
+        left: 20px;
+        font-size: 16px;
+      }
     </style>
   </head>
   <body>
-    <div class="allpass">
-      All passes  
-    </div>
-    <dic class="cross">
-      x
-    </dic>
+    <div class="allpass">All passes</div>
+    <dic class="cross"> x </dic>
     <div class="ticket">
       <div class="header">Rajkot Rajpath Ltd</div>
       <div class="section">
         <div class="row">
-          <div class="bold">ID</div>
-          <div class="bold">Fare</div>
+          <div class="bold" style="color: #838383">ID</div>
+          <div class="bold fare" style="color: #838383">Fare</div>
         </div>
         <div class="row">
-          <div class="bold" id="userName" style="font-size: 16px"></div>
-          <div class="bold" style="font-size: 16px">₹25</div>
+          <div class="bold name" id="userName" style="font-size: 16px"></div>
+          <div class="bold fare" style="margin-top: 5px; font-size: 20px">
+            ₹25
+          </div>
         </div>
       </div>
       <div class="divider"></div>
       <div class="section">
         <div class="row">
-          <div class="bold">Booking Time</div>
-          <div class="bold">Validity Time</div>
+          <div class="bold" style="color: #838383">Booking Time</div>
+          <div class="bold validity" style="color: #838383">Validity Time</div>
         </div>
         <div class="row">
           <div id="bookingTime">07 Aug, 25 | 07:01 AM</div>
@@ -170,16 +193,19 @@
       let bookingDate, validityDate;
 
       if (localStorage.getItem("booking_" + todayKey)) {
-  bookingDate = new Date(localStorage.getItem("booking_" + todayKey));
-  validityDate = new Date(localStorage.getItem("validity_" + todayKey));
-} else {
-  bookingDate = new Date(); // exact current time
-  validityDate = new Date();
-  validityDate.setHours(23, 59, 59, 0); // end of day
+        bookingDate = new Date(localStorage.getItem("booking_" + todayKey));
+        validityDate = new Date(localStorage.getItem("validity_" + todayKey));
+      } else {
+        bookingDate = new Date(); // exact current time
+        validityDate = new Date();
+        validityDate.setHours(23, 59, 59, 0); // end of day
 
-  localStorage.setItem("booking_" + todayKey, bookingDate.toISOString());
-  localStorage.setItem("validity_" + todayKey, validityDate.toISOString());
-}
+        localStorage.setItem("booking_" + todayKey, bookingDate.toISOString());
+        localStorage.setItem(
+          "validity_" + todayKey,
+          validityDate.toISOString()
+        );
+      }
       document.getElementById("bookingTime").textContent =
         formatDate(bookingDate);
       document.getElementById("validityTime").textContent =
